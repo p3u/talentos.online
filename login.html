@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil de Talento - Login</title>
+    <title>Meu Perfil de Talento - Login (Teste Redirect)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -68,18 +68,18 @@
             font-size: 1em;
             display: inline-flex;
             align-items: center;
-            gap: 10px; /* Espaço entre ícone e texto */
+            gap: 10px; 
             transition: background-color 0.2s ease, transform 0.2s ease;
             text-decoration: none;
-            width: 100%; /* Botão ocupa largura total */
-            justify-content: center; /* Centraliza conteúdo do botão */
+            width: 100%; 
+            justify-content: center; 
         }
         .linkedin-login-button:hover, .linkedin-logout-button:hover {
             background-color: #005e8e;
             transform: translateY(-2px);
         }
         .linkedin-logout-button {
-            background-color: #d14343; /* Cor diferente para logout */
+            background-color: #d14343; 
             margin-top: 15px;
         }
         .linkedin-logout-button:hover {
@@ -89,7 +89,7 @@
         .user-info {
             margin-top: 20px;
             padding: 15px;
-            background-color: #f0f8ff; /* Fundo azul claro */
+            background-color: #f0f8ff; 
             border: 1px solid #cce7ff;
             border-radius: var(--border-radius);
             display: flex;
@@ -143,6 +143,8 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5ZXl4a3p2dnhjeXB5anNmdXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNDczNzAsImV4cCI6MjA2MjcyMzM3MH0.H3ZS35V1vxU9TLRAzi10kOiFdZcZtKlAX9bJ0DVKrAc';
         
         // Inicializa o cliente Supabase
+        // A variável global 'supabase' é fornecida pela biblioteca carregada via CDN.
+        // Armazenamos nossa instância de cliente em 'supabaseClient'.
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Elementos do DOM
@@ -170,7 +172,9 @@
                 authMessageP.textContent = 'Você está conectado! Próximos passos: carregar suas indicações e permitir o preenchimento do perfil.';
 
                 console.log("Usuário logado:", user);
-                // alert(`Bem-vindo(a), ${user.user_metadata?.full_name || user.email}! Login realizado com sucesso.`); // Removido para melhor UX após login
+                // TODO: Implementar a lógica para carregar as indicações e o formulário de perfil aqui.
+                // Ex: loadUserIndicationsAndProfileForm(user); 
+                // alert(`Bem-vindo(a), ${user.user_metadata?.full_name || user.email}! Login realizado com sucesso.`); // Removido para melhor UX
 
             } else {
                 loginButton.style.display = 'inline-flex';
@@ -189,11 +193,14 @@
         // Ação do botão de login
         if (loginButton) {
             loginButton.addEventListener('click', async () => {
-			debugger
+                // URL de redirecionamento FIXA para este teste
+                const fixedRedirectURL = 'https://talentos.online/login.html'; 
+                console.log("Tentando login com redirectTo fixo:", fixedRedirectURL);
+
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'linkedin',
                     options: {
-                        redirectTo: window.location.href, 
+                        redirectTo: fixedRedirectURL, 
                         scopes: 'profile openid email r_liteprofile' 
                     }
                 });
