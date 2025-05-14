@@ -189,6 +189,7 @@
         // Ação do botão de login
         if (loginButton) {
             loginButton.addEventListener('click', async () => {
+			debugger
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'linkedin',
                     options: {
