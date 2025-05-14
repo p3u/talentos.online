@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil de Talento - Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #0077b5; /* Azul LinkedIn */
+            --secondary-color: #5e5e5e;
+            --background-gradient-start: #eef2f7;
+            --background-gradient-end: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --font-family: 'Poppins', sans-serif;
+            --border-radius: 10px;
+            --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, var(--background-gradient-start) 0%, var(--background-gradient-end) 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .auth-container {
+            background-color: var(--card-background);
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .auth-container h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .auth-container p {
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .linkedin-login-button, .linkedin-logout-button {
+            background-color: #0077b5;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1em;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px; /* Espaço entre ícone e texto */
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            text-decoration: none;
+            width: 100%; /* Botão ocupa largura total */
+            justify-content: center; /* Centraliza conteúdo do botão */
+        }
+        .linkedin-login-button:hover, .linkedin-logout-button:hover {
+            background-color: #005e8e;
+            transform: translateY(-2px);
+        }
+        .linkedin-logout-button {
+            background-color: #d14343; /* Cor diferente para logout */
+            margin-top: 15px;
+        }
+        .linkedin-logout-button:hover {
+            background-color: #b03030;
+        }
+        
+        .user-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff; /* Fundo azul claro */
+            border: 1px solid #cce7ff;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+        }
+        .user-info #userName {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .user-info #userEmail {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        /* Esconder elementos inicialmente */
+        .user-info, #logoutButton {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Seu Perfil de Talento</h2>
+        <p id="authMessage">Para acessar suas indicações e completar seu perfil, por favor, faça login com sua conta do LinkedIn.</p>
+        
+        <button id="loginButton" class="linkedin-login-button">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right: 8px;"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path></svg>
+            Entrar com LinkedIn
+        </button>
+
+        <div id="userInfo" class="user-info">
+            <img id="userAvatar" src="https://placehold.co/60x60/0077b5/FFFFFF?text=LI&font=poppins" alt="Avatar do Usuário">
+            <span id="userName">Nome do Usuário</span>
+            <span id="userEmail">email@example.com</span>
+            <button id="logoutButton" class="linkedin-logout-button">Sair</button>
+        </div>
+    </div>
+
+    <script>
+        // Suas credenciais do Supabase
+        const SUPABASE_URL = 'https://kyeyxkzvvxcypyjsfuzu.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5ZXl4a3p2dnhjeXB5anNmdXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNDczNzAsImV4cCI6MjA2MjcyMzM3MH0.H3ZS35V1vxU9TLRAzi10kOiFdZcZtKlAX9bJ0DVKrAc';
+        
+        // Inicializa o cliente Supabase
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Elementos do DOM
+        const loginButton = document.getElementById('loginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const userInfoDiv = document.getElementById('userInfo');
+        const userNameSpan = document.getElementById('userName');
+        const userAvatarImg = document.getElementById('userAvatar');
+        const userEmailSpan = document.getElementById('userEmail');
+        const authMessageP = document.getElementById('authMessage');
+
+        let currentUser = null;
+
+        // Função para atualizar a UI com base no estado de autenticação
+        function updateUI(user) {
+            currentUser = user;
+            if (user) {
+                loginButton.style.display = 'none';
+                userInfoDiv.style.display = 'flex'; 
+                logoutButton.style.display = 'inline-flex';
+                
+                userNameSpan.textContent = user.user_metadata?.full_name || user.email || 'Nome não disponível';
+                userEmailSpan.textContent = user.email || 'E-mail não disponível';
+                userAvatarImg.src = user.user_metadata?.avatar_url || 'https://placehold.co/60x60/0077b5/FFFFFF?text=LI&font=poppins';
+                authMessageP.textContent = 'Você está conectado! Próximos passos: carregar suas indicações e permitir o preenchimento do perfil.';
+
+                console.log("Usuário logado:", user);
+                // alert(`Bem-vindo(a), ${user.user_metadata?.full_name || user.email}! Login realizado com sucesso.`); // Removido para melhor UX após login
+
+            } else {
+                loginButton.style.display = 'inline-flex';
+                userInfoDiv.style.display = 'none';
+                logoutButton.style.display = 'none';
+                authMessageP.textContent = 'Para acessar suas indicações e completar seu perfil, por favor, faça login com sua conta do LinkedIn.';
+            }
+        }
+
+        // Listener para o estado de autenticação
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            console.log('Evento de Autenticação:', event, 'Sessão:', session);
+            updateUI(session ? session.user : null);
+        });
+
+        // Ação do botão de login
+        if (loginButton) {
+            loginButton.addEventListener('click', async () => {
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'linkedin',
+                    options: {
+                        redirectTo: window.location.href, 
+                        scopes: 'profile openid email r_liteprofile' 
+                    }
+                });
+                if (error) {
+                    console.error('Erro ao iniciar login com LinkedIn:', error);
+                    alert(`Erro no login: ${error.message}`);
+                } else {
+                    console.log('Redirecionando para o LinkedIn para login...', data);
+                }
+            });
+        }
+
+        // Ação do botão de logout
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) {
+                    console.error('Erro ao tentar logout:', error);
+                    alert(`Erro no logout: ${error.message}`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
