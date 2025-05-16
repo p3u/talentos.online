@@ -68,28 +68,28 @@
             font-size: 1em;
             display: inline-flex;
             align-items: center;
-            gap: 10px; 
+            gap: 10px;
             transition: background-color 0.2s ease, transform 0.2s ease;
             text-decoration: none;
-            width: 100%; 
-            justify-content: center; 
+            width: 100%;
+            justify-content: center;
         }
         .linkedin-login-button:hover, .linkedin-logout-button:hover {
             background-color: #005e8e;
             transform: translateY(-2px);
         }
         .linkedin-logout-button {
-            background-color: #d14343; 
+            background-color: #d14343;
             margin-top: 15px;
         }
         .linkedin-logout-button:hover {
             background-color: #b03030;
         }
-        
+
         .user-info {
             margin-top: 20px;
             padding: 15px;
-            background-color: #f0f8ff; 
+            background-color: #f0f8ff;
             border: 1px solid #cce7ff;
             border-radius: var(--border-radius);
             display: flex;
@@ -123,7 +123,7 @@
     <div class="auth-container">
         <h2>Seu Perfil de Talento</h2>
         <p id="authMessage">Para acessar suas indicações e completar seu perfil, por favor, faça login com sua conta do LinkedIn.</p>
-        
+
         <button id="loginButton" class="linkedin-login-button">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right: 8px;"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path></svg>
             Entrar com LinkedIn
@@ -141,7 +141,7 @@
         // Suas credenciais do Supabase
         const SUPABASE_URL = 'https://kyeyxkzvvxcypyjsfuzu.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5ZXl4a3p2dnhjeXB5anNmdXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNDczNzAsImV4cCI6MjA2MjcyMzM3MH0.H3ZS35V1vxU9TLRAzi10kOiFdZcZtKlAX9bJ0DVKrAc';
-        
+
         // Inicializa o cliente Supabase
         // A variável global 'supabase' é fornecida pela biblioteca carregada via CDN.
         // Armazenamos nossa instância de cliente em 'supabaseClient'.
@@ -163,9 +163,9 @@
             currentUser = user;
             if (user) {
                 loginButton.style.display = 'none';
-                userInfoDiv.style.display = 'flex'; 
+                userInfoDiv.style.display = 'flex';
                 logoutButton.style.display = 'inline-flex';
-                
+
                 userNameSpan.textContent = user.user_metadata?.full_name || user.email || 'Nome não disponível';
                 userEmailSpan.textContent = user.email || 'E-mail não disponível';
                 userAvatarImg.src = user.user_metadata?.avatar_url || 'https://placehold.co/60x60/0077b5/FFFFFF?text=LI&font=poppins';
@@ -173,7 +173,7 @@
 
                 console.log("Usuário logado:", user);
                 // TODO: Implementar a lógica para carregar as indicações e o formulário de perfil aqui.
-                // Ex: loadUserIndicationsAndProfileForm(user); 
+                // Ex: loadUserIndicationsAndProfileForm(user);
                 // alert(`Bem-vindo(a), ${user.user_metadata?.full_name || user.email}! Login realizado com sucesso.`); // Removido para melhor UX
 
             } else {
@@ -194,14 +194,14 @@
         if (loginButton) {
             loginButton.addEventListener('click', async () => {
                 // URL de redirecionamento FIXA para este teste
-                const fixedRedirectURL = 'https://talentos.online/login.html'; 
+                const fixedRedirectURL = 'https://talentos.online/login.html';
                 console.log("Tentando login com redirectTo fixo:", fixedRedirectURL);
 
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                    provider: 'linkedin',
+                    provider: 'linkedin_oidc',
                     options: {
-                        redirectTo: fixedRedirectURL, 
-                        scopes: 'profile openid email' 
+                        redirectTo: fixedRedirectURL,
+                        scopes: 'profile openid email'
                     }
                 });
                 if (error) {
