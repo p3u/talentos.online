@@ -1,0 +1,387 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #0077b5; /* Azul LinkedIn */
+    --secondary-color: #5e5e5e;
+    --light-secondary-color: #86888a;
+    --background-gradient-start: #eef2f7;
+    --background-gradient-end: #f8f9fa;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --input-border-color: #ced4da;
+    --success-color: #008000;
+    --font-family: 'Poppins', sans-serif;
+    --border-radius: 10px;
+    --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, var(--background-gradient-start) 0%, var(--background-gradient-end) 100%);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+@keyframes fadeInContainer {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+    background-color: var(--card-background);
+    padding: 30px 40px 40px 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border-top: 4px solid var(--primary-color);
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+    animation: fadeInContainer 0.7s ease-out forwards;
+}
+
+.header-image-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.header-image-container img {
+    max-width: 120px;
+    height: auto;
+    border-radius: 50%;
+}
+
+h1 {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 2.2em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 1.0em;
+    color: var(--secondary-color);
+    margin-bottom: 35px;
+    max-width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+    position: relative;
+}
+
+.linkedin-input-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.linkedin-input-group input[type="text"] {
+    flex-grow: 1;
+}
+.linkedin-input-group .assisted-search-button {
+    margin-top: 0;
+    height: 47px;
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+ .form-group label .optional-text {
+    font-weight: 400;
+    color: var(--light-secondary-color);
+    font-size: 0.9em;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--input-border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    font-size: 0.95em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 119, 181, 0.20);
+    outline: none;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.checkbox-group .checkbox-option {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.checkbox-group .checkbox-option:hover {
+    background-color: #eef2f7;
+    border-color: #d0d9e3;
+    transform: translateY(-2px);
+}
+ .checkbox-group .checkbox-option input[type="checkbox"] {
+    margin-right: 12px;
+    transform: scale(1.25);
+    accent-color: var(--primary-color);
+    flex-shrink: 0;
+}
+.checkbox-group .checkbox-option label {
+    font-weight: 500;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.checkbox-group .checkbox-option .emoji-func {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+.checkbox-group .other-input {
+    margin-top: 10px;
+    padding-left: 0;
+    grid-column: 1 / -1;
+}
+.checkbox-group .other-input input[type="text"]{
+    font-size: 0.9em;
+    padding: 10px 12px;
+}
+
+.form-instructions {
+    font-size: 0.8em;
+    color: var(--light-secondary-color);
+    margin-top: -15px;
+    margin-bottom: 12px;
+}
+
+.assisted-search-button {
+    background-color: #e1e9ee;
+    color: #0077b5;
+    padding: 10px 15px;
+    border: 1px solid #b0bace;
+    border-radius: var(--border-radius);
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+.assisted-search-button:hover {
+    background-color: #d0d9e0;
+    border-color: #909fae;
+}
+.assisted-search-button .emoji-search {
+     font-size: 1.1em; margin-right: 5px;
+}
+
+button[type="submit"], .new-referral-button {
+    background: var(--primary-color);
+    color: white;
+    padding: 16px 35px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,119,181,0.3);
+    display: inline-block;
+    width: auto;
+    min-width: 220px;
+    margin-top: 15px;
+}
+
+button[type="submit"]:hover, .new-referral-button:hover {
+    background: #005e8e;
+    box-shadow: 0 6px 15px rgba(0,119,181,0.4);
+    transform: translateY(-3px);
+}
+button[type="submit"]:active, .new-referral-button:active {
+    transform: translateY(-1px);
+}
+button[type="submit"]:disabled {
+    background: #a1aab3;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+.new-referral-button {
+    margin-top: 20px;
+}
+
+.emoji {
+    font-size: 1.5em;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+.thank-you-message {
+    display: none;
+    padding: 30px;
+    margin-top: 30px;
+    background-color: #e6ffed;
+    border: 1px solid var(--success-color);
+    color: #155724;
+    border-radius: var(--border-radius);
+    text-align: center;
+    animation: fadeInContainer 0.5s ease-out forwards;
+}
+.thank-you-message h2 {
+    margin-top: 0;
+    color: var(--success-color);
+    font-size: 1.8em;
+}
+.thank-you-message p {
+    font-size: 1.1em;
+}
+
+.tooltip-trigger {
+    cursor: help;
+    color: var(--primary-color);
+    font-weight: bold;
+    display: inline-block;
+    margin-left: 8px;
+    border: 1px solid var(--primary-color);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 18px;
+    text-align: center;
+    font-size: 0.8em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.tooltip-trigger:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.tooltip-content {
+    position: absolute;
+    background-color: #283e4a;
+    color: white;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 10;
+    width: calc(100% - 30px);
+    max-width: 300px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 10px);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    transform: translateX(-50%) translateY(10px);
+}
+.tooltip-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #283e4a transparent transparent transparent;
+}
+.tooltip-content.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+.tooltip-content p { margin: 0 0 8px 0; }
+.tooltip-content strong { color: #70b5f9; }
+
+@media (max-width: 768px) {
+    .linkedin-input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .linkedin-input-group .assisted-search-button {
+        width: 100%;
+        justify-content: center;
+         height: auto;
+         padding-top: 10px;
+         padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px 25px;
+        border-top-width: 3px;
+    }
+    h1 {
+        font-size: 1.9em;
+    }
+    .subtitle {
+        font-size: 0.95em;
+    }
+    .header-image-container img {
+        max-width: 100px;
+    }
+    button[type="submit"], .new-referral-button {
+        width: 100%;
+    }
+    .checkbox-group {
+        grid-template-columns: 1fr;
+    }
+    .tooltip-content {
+        width: 90%;
+        bottom: auto;
+        top: calc(100% + 10px);
+    }
+    .tooltip-content::after {
+        top: -16px;
+        border-color: transparent transparent #283e4a transparent;
+    }
+}
+.spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
