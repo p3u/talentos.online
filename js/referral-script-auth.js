@@ -15,7 +15,7 @@ const referralContainer = document.getElementById('referralContainer'); // The m
 const form = document.getElementById('referralForm');
 const thankYouMessage = document.getElementById('thankYouMessage');
 const newReferralButton = document.getElementById('newReferralButton');
-// Ensure submitButton is correctly selected, assuming it's the first/only submit type button in the form
+// Ensure submitButton is correctly selected, null check added for safety
 const submitButton = form ? form.querySelector('button[type="submit"]') : null;
 const openLinkedInSearchBtn = document.getElementById('openLinkedInSearchButton');
 
@@ -24,9 +24,9 @@ let currentUser = null; // To store the logged-in user object
 // --- Authentication Logic ---
 async function signInWithLinkedIn() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'linkedin_oidc', // Ensure this matches your Supabase provider config
+        provider: 'linkedin_oidc', // Corrected provider name
         options: {
-            redirectTo: window.location.href,
+            redirectTo: window.location.href, // Redirects back to the current page
             scopes: 'openid profile email' // Standard OIDC scopes
         }
     });
@@ -42,32 +42,59 @@ async function signOut() {
         console.error('Error during logout:', error);
         alert(`Error during logout: ${error.message}`);
     }
+    // onAuthStateChange will handle UI update and redirect
 }
 
 // Update UI based on auth state
 function updateAuthUI(user) {
     currentUser = user;
-    if (user) {
+    if (user) { // User is logged in
         if (authStatusDiv) authStatusDiv.style.display = 'flex';
         if (userNameSpan) userNameSpan.textContent = `Indicando como: ${user.user_metadata?.full_name || user.email}`;
         if (userAvatarImg) userAvatarImg.src = user.user_metadata?.avatar_url || 'https://placehold.co/30x30/0077b5/FFFFFF?text=LI&font=poppins';
         if (loginButton) loginButton.style.display = 'none';
         if (logoutButton) logoutButton.style.display = 'inline-flex';
-        if (referralContainer) referralContainer.style.display = 'block'; // Show form
-        if (thankYouMessage) thankYouMessage.style.display = 'none'; // Ensure thank you message is hidden initially
-    } else {
-        if (authStatusDiv) authStatusDiv.style.display = 'none';
-        if (loginButton) loginButton.style.display = 'inline-flex'; // Show login button
-        if (logoutButton) logoutButton.style.display = 'none';
-        if (referralContainer) referralContainer.style.display = 'none'; // Hide form
+        if (referralContainer) referralContainer.style.display = 'block'; // Show referral form
         if (thankYouMessage) thankYouMessage.style.display = 'none';
+    } else { // User is NOT logged in
+        // Redirect to profile/login page if not logged in
+        // IMPORTANT: Change 'profile.html' to the actual name of your login/profile page
+        // Check if we are on the referral page to avoid redirect loops if profile.html also uses this script or similar logic
+        const currentPage = window.location.pathname.split('/').pop(); // Gets the current HTML file name
+        if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') { // Adjust if your referral page has a different name
+             console.log("User not logged in on referral page, redirecting to profile.html");
+             window.location.href = 'profile.html';
+        }
     }
 }
 
 // Listen for auth state changes
 supabaseClient.auth.onAuthStateChange((event, session) => {
     console.log('Auth Event on Referral Page:', event, session);
-    updateAuthUI(session ? session.user : null);
+    const user = session ? session.user : null;
+
+    const hash = window.location.hash;
+    const isOAuthCallback = hash.includes('access_token=') || hash.includes('error=');
+    const currentPage = window.location.pathname.split('/').pop();
+
+    if (event === 'INITIAL_SESSION' && !user && !isOAuthCallback) {
+        if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html' ) {
+             console.log("Initial session on referral page: No user, redirecting to profile.html");
+             window.location.href = 'profile.html';
+        } else {
+            // If on another page (e.g. profile.html itself), let its own logic handle it or just update UI
+            updateAuthUI(user);
+        }
+    } else if (event === 'SIGNED_OUT') {
+         console.log("Signed out, redirecting to profile.html");
+         window.location.href = 'profile.html';
+    } else if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && user)) {
+        updateAuthUI(user);
+    }
+    // For other events like TOKEN_REFRESHED, USER_UPDATED, just update UI if needed
+    else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        updateAuthUI(user);
+    }
 });
 
 // Attach event listeners for login/logout
@@ -78,13 +105,14 @@ if (logoutButton) {
     logoutButton.addEventListener('click', signOut);
 }
 
-// --- Referral Form Logic ---
+// --- Referral Form Logic (Only runs if user is logged in and form is visible) ---
 function openLinkedInSearchForProfile() {
     const name = document.getElementById('indicatedName').value.trim();
     const company = document.getElementById('indicatedCompany').value.trim();
     if (name === "") {
         alert("Por favor, preencha pelo menos o nome do indicado para a busca.");
-        document.getElementById('indicatedName').focus();
+        const indicatedNameField = document.getElementById('indicatedName');
+        if (indicatedNameField) indicatedNameField.focus();
         return;
     }
     let keywords = name;
@@ -142,8 +170,11 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
         event.preventDefault();
 
         if (!currentUser) {
-            alert("Por favor, faça login com o LinkedIn antes de enviar uma indicação.");
-            if(loginButton) loginButton.focus(); // Focus on login button if not logged in
+            alert("Sessão expirada ou não autenticada. Por favor, faça login novamente.");
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') {
+                 window.location.href = 'profile.html';
+            }
             return;
         }
 
@@ -181,7 +212,7 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
             indicador_linkedin_id: linkedInIdentity?.id || null
         };
 
-        console.log("Submitting referral data:", indicacaoData); // Log data being sent
+        console.log("Submitting referral data:", indicacaoData);
 
         try {
             const { data, error } = await supabaseClient
@@ -197,14 +228,12 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
             }
 
             form.reset();
-            if(referralContainer) referralContainer.style.display = 'none'; // Hide form container
+            if(referralContainer) referralContainer.style.display = 'none';
             if (thankYouMessage) {
                  thankYouMessage.style.display = 'block';
                  thankYouMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            // Keep auth status visible
-            if (authStatusDiv) authStatusDiv.style.display = 'flex';
-
+            if (authStatusDiv) authStatusDiv.style.display = 'flex'; // Keep auth status visible
 
         } catch (error) {
             console.error('Erro inesperado na submissão:', error);
@@ -217,25 +246,25 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
     if (newReferralButton) {
         newReferralButton.addEventListener('click', function() {
             if (thankYouMessage) thankYouMessage.style.display = 'none';
-            if (referralContainer) referralContainer.style.display = 'block'; // Show form container
-            if (form) form.style.display = 'block'; // Ensure form itself is visible
+            if (referralContainer) referralContainer.style.display = 'block';
+            if (form) form.style.display = 'block';
             if (submitButton) {
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<span class="emoji">🚀</span> Enviar Indicação Agora';
             }
             const indicatedNameField = document.getElementById('indicatedName');
             if (indicatedNameField) indicatedNameField.focus();
+            if (authStatusDiv && currentUser) authStatusDiv.style.display = 'flex';
         });
     }
 } else {
-    if (!form) console.error("Elemento do formulário (referralForm) não encontrado.");
+    // Log errors if essential form elements are not found
+    if (!form) console.error("Elemento do formulário (referralForm) não encontrado. Verifique o ID no HTML.");
+    if (form && !submitButton) console.error("Botão de submit dentro do formulário não encontrado. Verifique a seleção.");
     if (!thankYouMessage) console.error("Elemento da mensagem de agradecimento (thankYouMessage) não encontrado.");
     if (!newReferralButton) console.error("Elemento do botão de nova indicação (newReferralButton) não encontrado.");
-    if (form && !submitButton) console.error("Botão de submit dentro do formulário não encontrado.");
 }
 
-// Initial UI check based on current session (onAuthStateChange handles this well)
-// (async () => {
-//     const { data: { session } } = await supabaseClient.auth.getSession();
-//     updateAuthUI(session ? session.user : null);
-// })();
+// The onAuthStateChange listener handles the initial check for a session.
+// If no session is found on INITIAL_SESSION and it's not an OAuth callback,
+// it will trigger the redirect logic within updateAuthUI or the onAuthStateChange itself.

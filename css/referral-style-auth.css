@@ -1,387 +1,270 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+// Supabase Credentials
+const SUPABASE_URL = 'https://kyeyxkzvvxcypyjsfuzu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5ZXl4a3p2dnhjeXB5anNmdXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNDczNzAsImV4cCI6MjA2MjcyMzM3MH0.H3ZS35V1vxU9TLRAzi10kOiFdZcZtKlAX9bJ0DVKrAc';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-:root {
-    --primary-color: #0077b5; /* Azul LinkedIn */
-    --secondary-color: #5e5e5e;
-    --light-secondary-color: #86888a;
-    --background-gradient-start: #eef2f7;
-    --background-gradient-end: #f8f9fa;
-    --card-background: #ffffff;
-    --text-color: #333;
-    --input-border-color: #ced4da;
-    --success-color: #008000;
-    --font-family: 'Poppins', sans-serif;
-    --border-radius: 10px;
-    --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
+// DOM Elements for Auth
+const loginButton = document.getElementById('loginButton');
+const logoutButton = document.getElementById('logoutButton');
+const authStatusDiv = document.getElementById('authStatus');
+const userNameSpan = document.getElementById('userName');
+const userAvatarImg = document.getElementById('userAvatar');
+const referralContainer = document.getElementById('referralContainer'); // The main form container
 
-body {
-    font-family: var(--font-family);
-    background: linear-gradient(135deg, var(--background-gradient-start) 0%, var(--background-gradient-end) 100%);
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: var(--text-color);
-    line-height: 1.6;
-}
+// DOM Elements for Referral Form
+const form = document.getElementById('referralForm');
+const thankYouMessage = document.getElementById('thankYouMessage');
+const newReferralButton = document.getElementById('newReferralButton');
+// Ensure submitButton is correctly selected, null check added for safety
+const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+const openLinkedInSearchBtn = document.getElementById('openLinkedInSearchButton');
 
-@keyframes fadeInContainer {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+let currentUser = null; // To store the logged-in user object
 
-.container {
-    background-color: var(--card-background);
-    padding: 30px 40px 40px 40px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    border-top: 4px solid var(--primary-color);
-    width: 100%;
-    max-width: 680px;
-    text-align: center;
-    animation: fadeInContainer 0.7s ease-out forwards;
-}
-
-.header-image-container {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.header-image-container img {
-    max-width: 120px;
-    height: auto;
-    border-radius: 50%;
-}
-
-h1 {
-    color: var(--primary-color);
-    font-weight: 700;
-    font-size: 2.2em;
-    margin-top: 0;
-    margin-bottom: 15px;
-    letter-spacing: -0.5px;
-}
-
-.subtitle {
-    font-size: 1.0em;
-    color: var(--secondary-color);
-    margin-bottom: 35px;
-    max-width: 95%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-group {
-    margin-bottom: 25px;
-    text-align: left;
-    position: relative;
-}
-
-.linkedin-input-group {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-.linkedin-input-group input[type="text"] {
-    flex-grow: 1;
-}
-.linkedin-input-group .assisted-search-button {
-    margin-top: 0;
-    height: 47px;
-    padding-top: 0;
-    padding-bottom: 0;
-    display: flex;
-    align-items: center;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text-color);
-    font-size: 0.9em;
-}
- .form-group label .optional-text {
-    font-weight: 400;
-    color: var(--light-secondary-color);
-    font-size: 0.9em;
-}
-
-.form-group input[type="text"],
-.form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--input-border-color);
-    border-radius: var(--border-radius);
-    box-sizing: border-box;
-    font-family: var(--font-family);
-    font-size: 0.95em;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.form-group input[type="text"]:focus,
-.form-group select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0, 119, 181, 0.20);
-    outline: none;
-}
-
-.checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 10px;
-}
-
-.checkbox-group .checkbox-option {
-    background-color: #f8f9fa;
-    padding: 12px 15px;
-    border-radius: var(--border-radius);
-    border: 1px solid #e9ecef;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-.checkbox-group .checkbox-option:hover {
-    background-color: #eef2f7;
-    border-color: #d0d9e3;
-    transform: translateY(-2px);
-}
- .checkbox-group .checkbox-option input[type="checkbox"] {
-    margin-right: 12px;
-    transform: scale(1.25);
-    accent-color: var(--primary-color);
-    flex-shrink: 0;
-}
-.checkbox-group .checkbox-option label {
-    font-weight: 500;
-    margin-bottom: 0;
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-.checkbox-group .checkbox-option .emoji-func {
-    margin-right: 8px;
-    font-size: 1.2em;
-}
-
-.checkbox-group .other-input {
-    margin-top: 10px;
-    padding-left: 0;
-    grid-column: 1 / -1;
-}
-.checkbox-group .other-input input[type="text"]{
-    font-size: 0.9em;
-    padding: 10px 12px;
-}
-
-.form-instructions {
-    font-size: 0.8em;
-    color: var(--light-secondary-color);
-    margin-top: -15px;
-    margin-bottom: 12px;
-}
-
-.assisted-search-button {
-    background-color: #e1e9ee;
-    color: #0077b5;
-    padding: 10px 15px;
-    border: 1px solid #b0bace;
-    border-radius: var(--border-radius);
-    font-size: 0.9em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-}
-.assisted-search-button:hover {
-    background-color: #d0d9e0;
-    border-color: #909fae;
-}
-.assisted-search-button .emoji-search {
-     font-size: 1.1em; margin-right: 5px;
-}
-
-button[type="submit"], .new-referral-button {
-    background: var(--primary-color);
-    color: white;
-    padding: 16px 35px;
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 1.05em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,119,181,0.3);
-    display: inline-block;
-    width: auto;
-    min-width: 220px;
-    margin-top: 15px;
-}
-
-button[type="submit"]:hover, .new-referral-button:hover {
-    background: #005e8e;
-    box-shadow: 0 6px 15px rgba(0,119,181,0.4);
-    transform: translateY(-3px);
-}
-button[type="submit"]:active, .new-referral-button:active {
-    transform: translateY(-1px);
-}
-button[type="submit"]:disabled {
-    background: #a1aab3;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-}
-.new-referral-button {
-    margin-top: 20px;
-}
-
-.emoji {
-    font-size: 1.5em;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-.thank-you-message {
-    display: none;
-    padding: 30px;
-    margin-top: 30px;
-    background-color: #e6ffed;
-    border: 1px solid var(--success-color);
-    color: #155724;
-    border-radius: var(--border-radius);
-    text-align: center;
-    animation: fadeInContainer 0.5s ease-out forwards;
-}
-.thank-you-message h2 {
-    margin-top: 0;
-    color: var(--success-color);
-    font-size: 1.8em;
-}
-.thank-you-message p {
-    font-size: 1.1em;
-}
-
-.tooltip-trigger {
-    cursor: help;
-    color: var(--primary-color);
-    font-weight: bold;
-    display: inline-block;
-    margin-left: 8px;
-    border: 1px solid var(--primary-color);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    line-height: 18px;
-    text-align: center;
-    font-size: 0.8em;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-.tooltip-trigger:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.tooltip-content {
-    position: absolute;
-    background-color: #283e4a;
-    color: white;
-    padding: 15px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 10;
-    width: calc(100% - 30px);
-    max-width: 300px;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(100% + 10px);
-    font-size: 0.8rem;
-    line-height: 1.4;
-    text-align: left;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-    transform: translateX(-50%) translateY(10px);
-}
-.tooltip-content::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -8px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: #283e4a transparent transparent transparent;
-}
-.tooltip-content.visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-}
-.tooltip-content p { margin: 0 0 8px 0; }
-.tooltip-content strong { color: #70b5f9; }
-
-@media (max-width: 768px) {
-    .linkedin-input-group {
-        flex-direction: column;
-        gap: 8px;
-    }
-    .linkedin-input-group .assisted-search-button {
-        width: 100%;
-        justify-content: center;
-         height: auto;
-         padding-top: 10px;
-         padding-bottom: 10px;
+// --- Authentication Logic ---
+async function signInWithLinkedIn() {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'linkedin_oidc', // Corrected provider name
+        options: {
+            redirectTo: window.location.href, // Redirects back to the current page
+            scopes: 'openid profile email' // Standard OIDC scopes
+        }
+    });
+    if (error) {
+        console.error('Error initiating LinkedIn login:', error);
+        alert(`Error during login: ${error.message}`);
     }
 }
 
-@media (max-width: 600px) {
-    .container {
-        padding: 20px 25px;
-        border-top-width: 3px;
+async function signOut() {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        console.error('Error during logout:', error);
+        alert(`Error during logout: ${error.message}`);
     }
-    h1 {
-        font-size: 1.9em;
-    }
-    .subtitle {
-        font-size: 0.95em;
-    }
-    .header-image-container img {
-        max-width: 100px;
-    }
-    button[type="submit"], .new-referral-button {
-        width: 100%;
-    }
-    .checkbox-group {
-        grid-template-columns: 1fr;
-    }
-    .tooltip-content {
-        width: 90%;
-        bottom: auto;
-        top: calc(100% + 10px);
-    }
-    .tooltip-content::after {
-        top: -16px;
-        border-color: transparent transparent #283e4a transparent;
+    // onAuthStateChange will handle UI update and redirect
+}
+
+// Update UI based on auth state
+function updateAuthUI(user) {
+    currentUser = user;
+    if (user) { // User is logged in
+        if (authStatusDiv) authStatusDiv.style.display = 'flex';
+        if (userNameSpan) userNameSpan.textContent = `Indicando como: ${user.user_metadata?.full_name || user.email}`;
+        if (userAvatarImg) userAvatarImg.src = user.user_metadata?.avatar_url || 'https://placehold.co/30x30/0077b5/FFFFFF?text=LI&font=poppins';
+        if (loginButton) loginButton.style.display = 'none';
+        if (logoutButton) logoutButton.style.display = 'inline-flex';
+        if (referralContainer) referralContainer.style.display = 'block'; // Show referral form
+        if (thankYouMessage) thankYouMessage.style.display = 'none';
+    } else { // User is NOT logged in
+        // Redirect to profile/login page if not logged in
+        // IMPORTANT: Change 'profile.html' to the actual name of your login/profile page
+        // Check if we are on the referral page to avoid redirect loops if profile.html also uses this script or similar logic
+        const currentPage = window.location.pathname.split('/').pop(); // Gets the current HTML file name
+        if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') { // Adjust if your referral page has a different name
+             console.log("User not logged in on referral page, redirecting to profile.html");
+             window.location.href = 'profile.html';
+        }
     }
 }
-.spinner {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-    margin-left: 5px;
-    vertical-align: middle;
+
+// Listen for auth state changes
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    console.log('Auth Event on Referral Page:', event, session);
+    const user = session ? session.user : null;
+
+    const hash = window.location.hash;
+    const isOAuthCallback = hash.includes('access_token=') || hash.includes('error=');
+    const currentPage = window.location.pathname.split('/').pop();
+
+    if (event === 'INITIAL_SESSION' && !user && !isOAuthCallback) {
+        if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html' ) {
+             console.log("Initial session on referral page: No user, redirecting to profile.html");
+             window.location.href = 'profile.html';
+        } else {
+            // If on another page (e.g. profile.html itself), let its own logic handle it or just update UI
+            updateAuthUI(user);
+        }
+    } else if (event === 'SIGNED_OUT') {
+         console.log("Signed out, redirecting to profile.html");
+         window.location.href = 'profile.html';
+    } else if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && user)) {
+        updateAuthUI(user);
+    }
+    // For other events like TOKEN_REFRESHED, USER_UPDATED, just update UI if needed
+    else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        updateAuthUI(user);
+    }
+});
+
+// Attach event listeners for login/logout
+if (loginButton) {
+    loginButton.addEventListener('click', signInWithLinkedIn);
 }
-@keyframes spin {
-    to { transform: rotate(360deg); }
+if (logoutButton) {
+    logoutButton.addEventListener('click', signOut);
 }
+
+// --- Referral Form Logic (Only runs if user is logged in and form is visible) ---
+function openLinkedInSearchForProfile() {
+    const name = document.getElementById('indicatedName').value.trim();
+    const company = document.getElementById('indicatedCompany').value.trim();
+    if (name === "") {
+        alert("Por favor, preencha pelo menos o nome do indicado para a busca.");
+        const indicatedNameField = document.getElementById('indicatedName');
+        if (indicatedNameField) indicatedNameField.focus();
+        return;
+    }
+    let keywords = name;
+    if (company !== "") keywords += ` ${company}`;
+    const linkedInSearchUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(keywords)}&origin=GLOBAL_SEARCH_HEADER`;
+    window.open(linkedInSearchUrl, '_blank');
+}
+
+if (openLinkedInSearchBtn) {
+    openLinkedInSearchBtn.addEventListener('click', openLinkedInSearchForProfile);
+}
+
+const tooltipTrigger = document.getElementById('tooltipTrigger');
+const tooltipContent = document.getElementById('linkedinHelp');
+if (tooltipTrigger && tooltipContent) {
+    tooltipTrigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        tooltipContent.classList.toggle('visible');
+    });
+    tooltipTrigger.addEventListener('mouseover', () => tooltipContent.classList.add('visible'));
+    tooltipTrigger.addEventListener('mouseleave', () => tooltipContent.classList.remove('visible'));
+}
+document.addEventListener('click', (event) => {
+    if (tooltipTrigger && tooltipContent &&
+        typeof tooltipTrigger.contains === 'function' && typeof tooltipContent.contains === 'function' &&
+        !tooltipTrigger.contains(event.target) && !tooltipContent.contains(event.target)) {
+        tooltipContent.classList.remove('visible');
+    }
+});
+
+const checkboxesAreas = document.querySelectorAll('input[name="areas"]');
+const maxAreas = 2;
+checkboxesAreas.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        if (document.querySelectorAll('input[name="areas"]:checked').length > maxAreas) {
+            checkbox.checked = false;
+            alert(`Você pode selecionar no máximo ${maxAreas} áreas.`);
+        }
+    });
+});
+
+const outraAreaChk = document.getElementById('outraAreaChk');
+const outraAreaInputContainer = document.getElementById('outraAreaInputContainer');
+const outraAreaText = document.getElementById('outraAreaText');
+if (outraAreaChk && outraAreaInputContainer && outraAreaText) {
+    outraAreaChk.addEventListener('change', () => {
+        outraAreaInputContainer.style.display = outraAreaChk.checked ? 'block' : 'none';
+        outraAreaText.required = outraAreaChk.checked;
+        if (!outraAreaChk.checked) outraAreaText.value = '';
+    });
+}
+
+if (form && thankYouMessage && newReferralButton && submitButton) {
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        if (!currentUser) {
+            alert("Sessão expirada ou não autenticada. Por favor, faça login novamente.");
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') {
+                 window.location.href = 'profile.html';
+            }
+            return;
+        }
+
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Enviando... <span class="spinner"></span>';
+
+        const nomeIndicado = document.getElementById('indicatedName').value.trim();
+        const empresaIndicado = document.getElementById('indicatedCompany').value.trim();
+        const linkedinIndicado = document.getElementById('indicatedContact').value.trim();
+        const relacaoProfissional = document.getElementById('relationship').value;
+
+        const areasSelecionadas = [];
+        document.querySelectorAll('input[name="areas"]:checked').forEach(checkbox => {
+            if (checkbox.value === 'outra_area_chk' && outraAreaChk.checked) {
+                const outraAreaVal = outraAreaText.value.trim();
+                if (outraAreaVal) areasSelecionadas.push(outraAreaVal);
+            } else if (checkbox.value !== 'outra_area_chk') {
+                areasSelecionadas.push(checkbox.value);
+            }
+        });
+
+        // Get LinkedIn provider-specific ID for the referrer
+        const linkedInIdentity = currentUser.identities?.find(id => id.provider === 'linkedin' || id.provider === 'linkedin_oidc');
+
+        const indicacaoData = {
+            nome_indicado: nomeIndicado,
+            empresa_indicado: empresaIndicado || null,
+            linkedin_indicado: linkedinIndicado,
+            relacao_profissional: relacaoProfissional,
+            areas_destaque: areasSelecionadas.length > 0 ? areasSelecionadas : null,
+            // Referrer's information
+            indicador_auth_user_id: currentUser.id, // Crucial for RLS
+            indicador_nome: currentUser.user_metadata?.full_name || currentUser.email,
+            indicador_linkedin_id: linkedInIdentity?.id || null
+        };
+
+        console.log("Submitting referral data:", indicacaoData);
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('indicacoes')
+                .insert([indicacaoData]);
+
+            if (error) {
+                console.error('Erro ao salvar indicação:', error);
+                alert(`Houve um erro ao enviar sua indicação: ${error.message}. Por favor, tente novamente.`);
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+                return;
+            }
+
+            form.reset();
+            if(referralContainer) referralContainer.style.display = 'none';
+            if (thankYouMessage) {
+                 thankYouMessage.style.display = 'block';
+                 thankYouMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (authStatusDiv) authStatusDiv.style.display = 'flex'; // Keep auth status visible
+
+        } catch (error) {
+            console.error('Erro inesperado na submissão:', error);
+            alert('Houve um erro inesperado ao processar sua indicação. Por favor, tente novamente.');
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        }
+    });
+
+    if (newReferralButton) {
+        newReferralButton.addEventListener('click', function() {
+            if (thankYouMessage) thankYouMessage.style.display = 'none';
+            if (referralContainer) referralContainer.style.display = 'block';
+            if (form) form.style.display = 'block';
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<span class="emoji">🚀</span> Enviar Indicação Agora';
+            }
+            const indicatedNameField = document.getElementById('indicatedName');
+            if (indicatedNameField) indicatedNameField.focus();
+            if (authStatusDiv && currentUser) authStatusDiv.style.display = 'flex';
+        });
+    }
+} else {
+    // Log errors if essential form elements are not found
+    if (!form) console.error("Elemento do formulário (referralForm) não encontrado. Verifique o ID no HTML.");
+    if (form && !submitButton) console.error("Botão de submit dentro do formulário não encontrado. Verifique a seleção.");
+    if (!thankYouMessage) console.error("Elemento da mensagem de agradecimento (thankYouMessage) não encontrado.");
+    if (!newReferralButton) console.error("Elemento do botão de nova indicação (newReferralButton) não encontrado.");
+}
+
+// The onAuthStateChange listener handles the initial check for a session.
+// If no session is found on INITIAL_SESSION and it's not an OAuth callback,
+// it will trigger the redirect logic within updateAuthUI or the onAuthStateChange itself.
