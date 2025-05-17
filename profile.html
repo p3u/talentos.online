@@ -34,7 +34,7 @@
             </div>
             <p>Áreas em que você foi indicado(a):</p>
             <ul id="indicatedAreasList" class="indications-list">
-                <li id="noIndicationsMessage">Faça login para ver suas indicações.</li>
+                <li id="noIndicationsMessage">Faça login e complete seu LinkedIn Vanity Name no perfil para ver suas indicações.</li>
             </ul>
         </section>
 
@@ -42,6 +42,11 @@
             <h2>Complete Seu Perfil de Talento</h2>
             <p>Informações adicionais nos ajudam a encontrar as melhores oportunidades para você!</p>
             <form id="profileForm">
+                <div class="form-group">
+                    <label for="my_linkedin_vanity">Seu "Vanity Name" do LinkedIn:</label>
+                    <input type="text" id="my_linkedin_vanity" name="my_linkedin_vanity" placeholder="Ex: seu-nome-no-linkedin">
+                    <span class="help-text">É a parte da URL do seu perfil após "linkedin.com/in/". Ex: se a URL é linkedin.com/in/<b>ana-silva-123</b>, seu vanity name é <b>ana-silva-123</b>.</span>
+                </div>
                 <div class="form-group">
                     <label for="current_salary">Salário Atual (R$, opcional):</label>
                     <input type="number" id="current_salary" name="current_salary" placeholder="Ex: 5000">
