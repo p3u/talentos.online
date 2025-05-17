@@ -9,25 +9,64 @@ const logoutButton = document.getElementById('logoutButton');
 const authStatusDiv = document.getElementById('authStatus');
 const userNameSpan = document.getElementById('userName');
 const userAvatarImg = document.getElementById('userAvatar');
-const referralContainer = document.getElementById('referralContainer'); // The main form container
+const referralContainer = document.getElementById('referralContainer');
 
 // DOM Elements for Referral Form
 const form = document.getElementById('referralForm');
 const thankYouMessage = document.getElementById('thankYouMessage');
 const newReferralButton = document.getElementById('newReferralButton');
-// Ensure submitButton is correctly selected, null check added for safety
 const submitButton = form ? form.querySelector('button[type="submit"]') : null;
 const openLinkedInSearchBtn = document.getElementById('openLinkedInSearchButton');
 
-let currentUser = null; // To store the logged-in user object
+let currentUser = null;
+
+// --- LinkedIn URL Parsing Function ---
+function extractLinkedInVanityName(url) {
+    if (!url) return null;
+    try {
+        const urlObj = new URL(url); // Helps normalize a bit (e.g. trailing slashes)
+        const path = urlObj.pathname; // Gets the path part, e.g., /in/vanityname/ or /in/vanityname
+
+        // Regex to find content after /in/ and before the next / or end of string
+        // It handles optional trailing slashes.
+        const match = path.match(/\/in\/([^/?#]+)/i);
+
+        if (match && match[1]) {
+            // Remove trailing slash from the matched group if present
+            return match[1].replace(/\/$/, '');
+        }
+        // Fallback for /pub/ format (less common for new profiles)
+        const pubMatch = path.match(/\/pub\/([^/?#]+)/i);
+        if (pubMatch && pubMatch[1]) {
+            return pubMatch[1].replace(/\/$/, '');
+        }
+
+    } catch (e) {
+        console.error("Error parsing LinkedIn URL:", e);
+        // If URL parsing fails, try a simpler string manipulation as a fallback
+        // This is less robust but might catch some cases.
+        let pathPart = url.split('linkedin.com/in/')[1];
+        if (pathPart) {
+            pathPart = pathPart.split('/')[0].split('?')[0].split('#')[0];
+            return pathPart;
+        }
+        pathPart = url.split('linkedin.com/pub/')[1];
+        if (pathPart) {
+            pathPart = pathPart.split('/')[0].split('?')[0].split('#')[0];
+            return pathPart;
+        }
+    }
+    return null; // Return null if no vanity name found
+}
+
 
 // --- Authentication Logic ---
 async function signInWithLinkedIn() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'linkedin_oidc', // Corrected provider name
+        provider: 'linkedin_oidc',
         options: {
-            redirectTo: window.location.href, // Redirects back to the current page
-            scopes: 'openid profile email' // Standard OIDC scopes
+            redirectTo: window.location.href,
+            scopes: 'openid profile email'
         }
     });
     if (error) {
@@ -42,33 +81,27 @@ async function signOut() {
         console.error('Error during logout:', error);
         alert(`Error during logout: ${error.message}`);
     }
-    // onAuthStateChange will handle UI update and redirect
 }
 
-// Update UI based on auth state
 function updateAuthUI(user) {
     currentUser = user;
-    if (user) { // User is logged in
+    if (user) {
         if (authStatusDiv) authStatusDiv.style.display = 'flex';
         if (userNameSpan) userNameSpan.textContent = `Indicando como: ${user.user_metadata?.full_name || user.email}`;
         if (userAvatarImg) userAvatarImg.src = user.user_metadata?.avatar_url || 'https://placehold.co/30x30/0077b5/FFFFFF?text=LI&font=poppins';
         if (loginButton) loginButton.style.display = 'none';
         if (logoutButton) logoutButton.style.display = 'inline-flex';
-        if (referralContainer) referralContainer.style.display = 'block'; // Show referral form
+        if (referralContainer) referralContainer.style.display = 'block';
         if (thankYouMessage) thankYouMessage.style.display = 'none';
-    } else { // User is NOT logged in
-        // Redirect to profile/login page if not logged in
-        // IMPORTANT: Change 'profile.html' to the actual name of your login/profile page
-        // Check if we are on the referral page to avoid redirect loops if profile.html also uses this script or similar logic
-        const currentPage = window.location.pathname.split('/').pop(); // Gets the current HTML file name
-        if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') { // Adjust if your referral page has a different name
+    } else {
+        const currentPage = window.location.pathname.split('/').pop();
+        if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') {
              console.log("User not logged in on referral page, redirecting to profile.html");
-             window.location.href = 'profile.html';
+             window.location.href = 'profile.html'; // Ensure 'profile.html' is the correct login page name
         }
     }
 }
 
-// Listen for auth state changes
 supabaseClient.auth.onAuthStateChange((event, session) => {
     console.log('Auth Event on Referral Page:', event, session);
     const user = session ? session.user : null;
@@ -80,24 +113,21 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'INITIAL_SESSION' && !user && !isOAuthCallback) {
         if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html' ) {
              console.log("Initial session on referral page: No user, redirecting to profile.html");
-             window.location.href = 'profile.html';
+             window.location.href = 'profile.html'; // Ensure 'profile.html' is correct
         } else {
-            // If on another page (e.g. profile.html itself), let its own logic handle it or just update UI
             updateAuthUI(user);
         }
     } else if (event === 'SIGNED_OUT') {
          console.log("Signed out, redirecting to profile.html");
-         window.location.href = 'profile.html';
+         window.location.href = 'profile.html'; // Ensure 'profile.html' is correct
     } else if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && user)) {
         updateAuthUI(user);
     }
-    // For other events like TOKEN_REFRESHED, USER_UPDATED, just update UI if needed
     else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         updateAuthUI(user);
     }
 });
 
-// Attach event listeners for login/logout
 if (loginButton) {
     loginButton.addEventListener('click', signInWithLinkedIn);
 }
@@ -105,7 +135,7 @@ if (logoutButton) {
     logoutButton.addEventListener('click', signOut);
 }
 
-// --- Referral Form Logic (Only runs if user is logged in and form is visible) ---
+// --- Referral Form Logic ---
 function openLinkedInSearchForProfile() {
     const name = document.getElementById('indicatedName').value.trim();
     const company = document.getElementById('indicatedCompany').value.trim();
@@ -173,7 +203,7 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
             alert("Sessão expirada ou não autenticada. Por favor, faça login novamente.");
             const currentPage = window.location.pathname.split('/').pop();
             if (currentPage === 'referral.html' || currentPage === '' || currentPage === 'index.html') {
-                 window.location.href = 'profile.html';
+                 window.location.href = 'profile.html'; // Ensure 'profile.html' is correct
             }
             return;
         }
@@ -184,7 +214,7 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
 
         const nomeIndicado = document.getElementById('indicatedName').value.trim();
         const empresaIndicado = document.getElementById('indicatedCompany').value.trim();
-        const linkedinIndicado = document.getElementById('indicatedContact').value.trim();
+        const linkedinIndicadoURL = document.getElementById('indicatedContact').value.trim(); // Get the full URL
         const relacaoProfissional = document.getElementById('relationship').value;
 
         const areasSelecionadas = [];
@@ -197,17 +227,19 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
             }
         });
 
-        // Get LinkedIn provider-specific ID for the referrer
         const linkedInIdentity = currentUser.identities?.find(id => id.provider === 'linkedin' || id.provider === 'linkedin_oidc');
+
+        // NEW: Extract vanity name from the indicated person's LinkedIn URL
+        const indicadoLinkedInVanity = extractLinkedInVanityName(linkedinIndicadoURL);
 
         const indicacaoData = {
             nome_indicado: nomeIndicado,
             empresa_indicado: empresaIndicado || null,
-            linkedin_indicado: linkedinIndicado,
+            linkedin_indicado: linkedinIndicadoURL, // Store the full URL as before
+            indicado_linkedin_vanity: indicadoLinkedInVanity, // Store the extracted vanity name
             relacao_profissional: relacaoProfissional,
             areas_destaque: areasSelecionadas.length > 0 ? areasSelecionadas : null,
-            // Referrer's information
-            indicador_auth_user_id: currentUser.id, // Crucial for RLS
+            indicador_auth_user_id: currentUser.id,
             indicador_nome: currentUser.user_metadata?.full_name || currentUser.email,
             indicador_linkedin_id: linkedInIdentity?.id || null
         };
@@ -233,7 +265,7 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
                  thankYouMessage.style.display = 'block';
                  thankYouMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            if (authStatusDiv) authStatusDiv.style.display = 'flex'; // Keep auth status visible
+            if (authStatusDiv) authStatusDiv.style.display = 'flex';
 
         } catch (error) {
             console.error('Erro inesperado na submissão:', error);
@@ -258,13 +290,8 @@ if (form && thankYouMessage && newReferralButton && submitButton) {
         });
     }
 } else {
-    // Log errors if essential form elements are not found
-    if (!form) console.error("Elemento do formulário (referralForm) não encontrado. Verifique o ID no HTML.");
-    if (form && !submitButton) console.error("Botão de submit dentro do formulário não encontrado. Verifique a seleção.");
+    if (!form) console.error("Elemento do formulário (referralForm) não encontrado.");
+    if (form && !submitButton) console.error("Botão de submit dentro do formulário não encontrado.");
     if (!thankYouMessage) console.error("Elemento da mensagem de agradecimento (thankYouMessage) não encontrado.");
     if (!newReferralButton) console.error("Elemento do botão de nova indicação (newReferralButton) não encontrado.");
 }
-
-// The onAuthStateChange listener handles the initial check for a session.
-// If no session is found on INITIAL_SESSION and it's not an OAuth callback,
-// it will trigger the redirect logic within updateAuthUI or the onAuthStateChange itself.
