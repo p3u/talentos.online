@@ -32,7 +32,9 @@ async function signInWithLinkedIn() {
         provider: 'linkedin_oidc', // Corrected provider name
         options: {
             redirectTo: window.location.href, // Redirects back to the current page
-            scopes: 'profile openid email r_liteprofile' // Request basic profile info
+            // UPDATED SCOPES: Removed r_liteprofile as it's likely causing the unauthorized_scope_error
+            // OIDC 'profile' scope should provide name, picture, etc.
+            scopes: 'openid profile email'
         }
     });
     if (error) {
@@ -53,69 +55,65 @@ async function signOut() {
 // --- Data Fetching and Profile Management Functions ---
 async function fetchUserIndications(user) {
     if (!user || !user.user_metadata?.full_name) {
-        indicationsCountSpan.textContent = '0';
+        if(indicationsCountSpan) indicationsCountSpan.textContent = '0';
         if (noIndicationsMessageLi) {
             noIndicationsMessageLi.textContent = 'Não foi possível verificar seu nome para buscar indicações.';
             noIndicationsMessageLi.style.display = 'list-item';
         }
-        indicatedAreasListUl.innerHTML = ''; // Clear previous list
-        if (noIndicationsMessageLi) indicatedAreasListUl.appendChild(noIndicationsMessageLi);
+        if(indicatedAreasListUl) indicatedAreasListUl.innerHTML = ''; // Clear previous list
+        if (noIndicationsMessageLi && indicatedAreasListUl) indicatedAreasListUl.appendChild(noIndicationsMessageLi);
         return;
     }
 
     const userNameFromLinkedIn = user.user_metadata.full_name;
     console.log(`Fetching indications for: ${userNameFromLinkedIn}`);
 
-    // Attempt to fetch indications by matching the full name.
-    // This is a simplification. A more robust solution would use a unique LinkedIn ID
-    // or a canonical LinkedIn profile URL if available and stored during indication.
     const { data: indications, error: indicationsError } = await supabaseClient
         .from('indicacoes') // Your referrals table
         .select('areas_destaque, linkedin_indicado')
-        .ilike('nome_indicado', `%${userNameFromLinkedIn}%`); // Case-insensitive search for the name
+        .ilike('nome_indicado', `%${userNameFromLinkedIn}%`);
 
     if (indicationsError) {
         console.error('Error fetching indications:', indicationsError);
-        indicationsCountSpan.textContent = 'Erro';
+        if(indicationsCountSpan) indicationsCountSpan.textContent = 'Erro';
         if (noIndicationsMessageLi) noIndicationsMessageLi.textContent = 'Não foi possível carregar as áreas indicadas.';
     } else if (indications && indications.length > 0) {
-        indicationsCountSpan.textContent = indications.length;
+        if(indicationsCountSpan) indicationsCountSpan.textContent = indications.length;
         const allAreas = indications.flatMap(ind => ind.areas_destaque || []);
-        const uniqueAreas = [...new Set(allAreas.filter(area => area))]; // Remove nulls/empty and duplicates
+        const uniqueAreas = [...new Set(allAreas.filter(area => area))];
 
         if (uniqueAreas.length > 0) {
             if (noIndicationsMessageLi) noIndicationsMessageLi.style.display = 'none';
-            indicatedAreasListUl.innerHTML = uniqueAreas.map(area => `<li>${area}</li>`).join('');
+            if(indicatedAreasListUl) indicatedAreasListUl.innerHTML = uniqueAreas.map(area => `<li>${area}</li>`).join('');
         } else {
             if (noIndicationsMessageLi) {
                 noIndicationsMessageLi.textContent = 'Você foi indicado(a), mas sem áreas específicas mencionadas.';
                 noIndicationsMessageLi.style.display = 'list-item';
             }
-            indicatedAreasListUl.innerHTML = '';
-            if (noIndicationsMessageLi) indicatedAreasListUl.appendChild(noIndicationsMessageLi);
+            if(indicatedAreasListUl) indicatedAreasListUl.innerHTML = '';
+            if (noIndicationsMessageLi && indicatedAreasListUl) indicatedAreasListUl.appendChild(noIndicationsMessageLi);
         }
     } else {
-        indicationsCountSpan.textContent = '0';
+        if(indicationsCountSpan) indicationsCountSpan.textContent = '0';
         if (noIndicationsMessageLi) {
             noIndicationsMessageLi.textContent = 'Nenhuma indicação encontrada para seu nome no momento.';
             noIndicationsMessageLi.style.display = 'list-item';
         }
-        indicatedAreasListUl.innerHTML = '';
-        if (noIndicationsMessageLi) indicatedAreasListUl.appendChild(noIndicationsMessageLi);
+        if(indicatedAreasListUl) indicatedAreasListUl.innerHTML = '';
+        if (noIndicationsMessageLi && indicatedAreasListUl) indicatedAreasListUl.appendChild(noIndicationsMessageLi);
     }
 }
 
 async function loadOrCreateUserProfile(user) {
-    // Try to fetch existing profile
     const { data: profile, error } = await supabaseClient
-        .from('user_profiles') // Your user profiles table
+        .from('user_profiles')
         .select('*')
-        .eq('id', user.id) // Supabase auth user ID is the primary key
+        .eq('id', user.id)
         .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116: no rows found, which is fine
+    if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user profile:', error);
-        return null; // Or handle error appropriately
+        return null;
     }
 
     if (profile) {
@@ -123,7 +121,6 @@ async function loadOrCreateUserProfile(user) {
         populateProfileForm(profile);
         return profile;
     } else {
-        // Profile doesn't exist, create a basic one
         console.log("No existing profile, creating a new one for user:", user.id);
         const linkedInIdentity = user.identities?.find(id => id.provider === 'linkedin' || id.provider === 'linkedin_oidc');
         const newProfileData = {
@@ -131,8 +128,7 @@ async function loadOrCreateUserProfile(user) {
             full_name: user.user_metadata?.full_name || user.email,
             email: user.email,
             avatar_url: user.user_metadata?.avatar_url,
-            linkedin_user_id: linkedInIdentity?.id || null // Store LinkedIn's unique ID for this user
-            // linkedin_profile_url: // This would ideally be fetched via an Edge Function using provider_token
+            linkedin_user_id: linkedInIdentity?.id || null
         };
         const { data: createdProfile, error: createError } = await supabaseClient
             .from('user_profiles')
@@ -152,11 +148,11 @@ async function loadOrCreateUserProfile(user) {
 
 function populateProfileForm(profile) {
     if (!profile || !profileForm) return;
-    profileForm.elements.current_salary.value = profile.current_salary || '';
-    profileForm.elements.desired_salary.value = profile.desired_salary || '';
-    profileForm.elements.skills.value = (profile.skills || []).join(', ');
-    profileForm.elements.desired_role_type.value = profile.desired_role_type || '';
-    profileForm.elements.desired_companies.value = (profile.desired_companies || []).join(', ');
+    if(profileForm.elements.current_salary) profileForm.elements.current_salary.value = profile.current_salary || '';
+    if(profileForm.elements.desired_salary) profileForm.elements.desired_salary.value = profile.desired_salary || '';
+    if(profileForm.elements.skills) profileForm.elements.skills.value = (profile.skills || []).join(', ');
+    if(profileForm.elements.desired_role_type) profileForm.elements.desired_role_type.value = profile.desired_role_type || '';
+    if(profileForm.elements.desired_companies) profileForm.elements.desired_companies.value = (profile.desired_companies || []).join(', ');
 }
 
 // --- UI Update and Event Listeners ---
@@ -194,23 +190,19 @@ async function handleAuthStateChange(user) {
     }
 }
 
-// Listen for authentication state changes
 supabaseClient.auth.onAuthStateChange((event, session) => {
     console.log('Auth Event:', event, 'Session:', session);
     handleAuthStateChange(session ? session.user : null);
 });
 
-// Login button event listener
 if (loginButton) {
     loginButton.addEventListener('click', signInWithLinkedIn);
 }
 
-// Logout button event listener
 if (logoutButton) {
     logoutButton.addEventListener('click', signOut);
 }
 
-// Profile form submission
 if (profileForm) {
     profileForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -225,14 +217,13 @@ if (profileForm) {
         submitProfileButton.innerHTML = 'Salvando... <span class="spinner"></span>';
 
         const profileDataToSave = {
-            id: currentUser.id, // Primary key, also foreign key to auth.users.id
+            id: currentUser.id,
             current_salary: profileForm.elements.current_salary.value ? parseFloat(profileForm.elements.current_salary.value) : null,
             desired_salary: profileForm.elements.desired_salary.value ? parseFloat(profileForm.elements.desired_salary.value) : null,
             skills: profileForm.elements.skills.value.split(',').map(s => s.trim()).filter(s => s.length > 0),
             desired_role_type: profileForm.elements.desired_role_type.value.trim() || null,
             desired_companies: profileForm.elements.desired_companies.value.split(',').map(s => s.trim()).filter(s => s.length > 0),
             updated_at: new Date().toISOString(),
-            // Keep LinkedIn data if already present, or update if available
             full_name: currentUser.user_metadata?.full_name || currentUser.email,
             email: currentUser.email,
             avatar_url: currentUser.user_metadata?.avatar_url,
@@ -243,7 +234,7 @@ if (profileForm) {
 
         const { data, error } = await supabaseClient
             .from('user_profiles')
-            .upsert(profileDataToSave, { onConflict: 'id' }) // Assumes 'id' is the PK and conflict target
+            .upsert(profileDataToSave, { onConflict: 'id' })
             .select()
             .single();
 
@@ -258,9 +249,3 @@ if (profileForm) {
         submitProfileButton.textContent = originalButtonText;
     });
 }
-
-// Initial check for session (onAuthStateChange usually handles this after redirect)
-// (async () => {
-//     const { data: { session } } = await supabaseClient.auth.getSession();
-//     handleAuthStateChange(session ? session.user : null);
-// })();
