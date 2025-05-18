@@ -147,6 +147,7 @@ body {
     margin-top: 4px;
 }
 
+/* Styles for the removed indications section (can be deleted if not needed elsewhere) */
 .indications-summary {
     background-color: var(--info-color);
     color: white;
@@ -190,12 +191,16 @@ body {
 }
 
 /* Hide sections until login */
-.profile-section, .indications-section, .actions-section, #userInfo, #logoutButton {
+.profile-section,
+/* .indications-section,  -- This was removed from HTML, so selector can be removed too */
+.actions-section,
+#userInfo,
+#logoutButton {
     display: none;
 }
 
 @media (max-width: 600px) {
-    .auth-section, .profile-section, .indications-section, .actions-section {
+    .auth-section, .profile-section, .actions-section { /* Removed .indications-section */
         padding: 20px;
     }
     .user-info {

@@ -12,7 +12,7 @@
         <section id="authSection" class="auth-section">
             <div id="loginArea">
                 <h2>Bem-vindo(a) à Nossa Rede de Talentos!</h2>
-                <p id="authMessage">Para ver suas indicações e gerenciar seu perfil, por favor, faça login com o LinkedIn.</p>
+                <p id="authMessage">Para gerenciar seu perfil e informar suas preferências, por favor, faça login com o LinkedIn.</p>
                 <button id="loginButton" class="linkedin-login-button">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-right: 8px;"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path></svg>
                     Entrar com LinkedIn
@@ -27,24 +27,13 @@
             </div>
         </section>
 
-        <section id="indicationsSection" class="indications-section">
-            <h2>Suas Indicações Recebidas</h2>
-            <div id="indicationsSummary" class="indications-summary">
-                <p>Você recebeu <strong id="indicationsCount">0</strong> indicação(ões).</p>
-            </div>
-            <p>Áreas em que você foi indicado(a):</p>
-            <ul id="indicatedAreasList" class="indications-list">
-                <li id="noIndicationsMessage">Faça login e complete seu LinkedIn Vanity Name no perfil para ver suas indicações.</li>
-            </ul>
-        </section>
-
         <section id="profileSection" class="profile-section">
             <h2>Complete Seu Perfil de Talento</h2>
-            <p>Informações adicionais nos ajudam a encontrar as melhores oportunidades para você!</p>
+            <p>Informações adicionais nos ajudam a encontrar as melhores oportunidades para você! Se você foi indicado(a), preencher seu "Vanity Name" do LinkedIn abaixo é importante para futuras funcionalidades.</p>
             <form id="profileForm">
                 <div class="form-group">
                     <label for="my_linkedin_vanity">Seu "Vanity Name" do LinkedIn:</label>
-                    <input type="text" id="my_linkedin_vanity" name="my_linkedin_vanity" placeholder="Ex: seu-nome-no-linkedin">
+                    <input type="text" id="my_linkedin_vanity" name="my_linkedin_vanity" placeholder="Ex: seu-nome-unico-linkedin">
                     <span class="help-text">É a parte da URL do seu perfil após "linkedin.com/in/". Ex: se a URL é linkedin.com/in/<b>ana-silva-123</b>, seu vanity name é <b>ana-silva-123</b>.</span>
                 </div>
                 <div class="form-group">
@@ -74,9 +63,9 @@
         </section>
 
         <section id="actionsSection" class="actions-section">
-             <h2>Indique Outros Talentos</h2>
-             <p>Conhece mais pessoas incríveis? Ajude a nossa rede a crescer!</p>
-             <a href="referral.html" class="action-button">Fazer uma Nova Indicação</a>
+             <h2>Ações</h2>
+             <a href="referral.html" class="action-button">Indicar um Talento</a>
+             <a href="view-my-referrals.html" class="action-button" style="margin-top: 10px; background-color: var(--info-color);">Ver Minhas Indicações Recebidas</a>
         </section>
     </div>
 
