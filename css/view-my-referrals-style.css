@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #0077b5;
+    --secondary-color: #5e5e5e;
+    --light-secondary-color: #86888a;
+    --background-gradient-start: #f0f4f8; /* Lighter background */
+    --background-gradient-end: #e6e9ed;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --input-border-color: #ced4da;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --font-family: 'Poppins', sans-serif;
+    --border-radius: 10px;
+    --box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, var(--background-gradient-start) 0%, var(--background-gradient-end) 100%);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 20px auto;
+}
+
+.auth-section, .vanity-input-section, .results-section, .actions-section {
+    background-color: var(--card-background);
+    padding: 25px 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.auth-section h2, .vanity-input-section h2, .results-section h2, .actions-section h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+.auth-section p, .vanity-input-section p, .results-section p, .actions-section p {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+
+.linkedin-login-button, .linkedin-logout-button, .action-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+.linkedin-login-button {
+     width: auto;
+     min-width: 250px;
+     justify-content: center;
+}
+.linkedin-login-button:hover, .linkedin-logout-button:hover, .action-button:hover {
+    background-color: #005e8e;
+    transform: translateY(-2px);
+}
+.linkedin-logout-button {
+    background-color: #d14343;
+}
+.linkedin-logout-button:hover {
+    background-color: #b03030;
+}
+.action-button.secondary {
+    background-color: var(--secondary-color);
+}
+.action-button.secondary:hover {
+    background-color: #4a4a4a;
+}
+
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 15px; /* Added margin for when it appears */
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+}
+.user-info .user-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.user-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.user-info #userName {
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--input-border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    font-size: 0.95em;
+}
+.form-group input[type="text"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 119, 181, 0.20);
+    outline: none;
+}
+.form-group .help-text {
+    font-size: 0.8em;
+    color: var(--light-secondary-color);
+    display: block;
+    margin-top: 4px;
+}
+
+.referral-results-summary {
+    background-color: var(--info-color);
+    color: white;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+.referral-results-summary p {
+    margin: 5px 0;
+    font-size: 1.1em;
+    color: white; /* Ensure text is white */
+}
+.referral-results-summary strong {
+    font-size: 1.5em;
+}
+.referral-list {
+    text-align: left;
+    list-style: disc; /* Use disc for bullet points */
+    padding-left: 20px; /* Add some padding for list items */
+}
+.referral-list li {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Hide sections until login/interaction */
+#userInfo, #logoutButton, .vanity-input-section, .results-section, #navigationActions {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .auth-section, .vanity-input-section, .results-section, .actions-section {
+        padding: 20px;
+    }
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+    }
+    .user-info .user-details {
+        flex-direction: column;
+        align-items: center;
+    }
+    .linkedin-login-button, .linkedin-logout-button, .action-button {
+        width: 100%;
+        margin-bottom: 10px; /* Add some space between stacked buttons */
+    }
+    .actions-section .action-button:last-child {
+        margin-bottom: 0;
+    }
+}
