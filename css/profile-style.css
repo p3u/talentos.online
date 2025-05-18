@@ -10,7 +10,8 @@
     --text-color: #333;
     --input-border-color: #ced4da;
     --success-color: #008000;
-    --info-color: #17a2b8;
+    --info-color: #17a2b8; /* Used for "Ver Minhas Indicações" button */
+    --celebration-text-color: #2a9d8f; /* A nice teal for celebration */
     --font-family: 'Poppins', sans-serif;
     --border-radius: 10px;
     --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -23,7 +24,7 @@ body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Align items to the top */
+    justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
     color: var(--text-color);
@@ -36,7 +37,7 @@ body {
     margin: 20px auto;
 }
 
-.auth-section, .profile-section, .indications-section, .actions-section {
+.auth-section, .profile-section, .actions-section, .celebration-section { /* Added .celebration-section */
     background-color: var(--card-background);
     padding: 25px 30px;
     border-radius: var(--border-radius);
@@ -45,11 +46,47 @@ body {
     text-align: center;
 }
 
-.auth-section h2, .profile-section h2, .indications-section h2, .actions-section h2 {
+.auth-section h2, .profile-section h2, .actions-section h2 {
     color: var(--primary-color);
     margin-top: 0;
     margin-bottom: 20px;
 }
+
+/* Styles for the new Celebration Section */
+.celebration-section {
+    border-left: 5px solid var(--success-color);
+    background-color: #f0fff4; /* Light green background */
+}
+.celebration-text {
+    color: var(--celebration-text-color);
+    font-size: 1.6em;
+    font-weight: 600;
+    margin-bottom: 10px !important; /* Ensure margin-bottom is applied */
+}
+.celebration-section p {
+    font-size: 1em;
+    color: var(--secondary-color);
+}
+.celebration-emoji {
+    display: inline-block;
+    animation: bounce 1.5s infinite ease-in-out;
+}
+.celebration-emoji:nth-child(2) { /* Targets the second emoji in the h2 */
+    animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
 
 .linkedin-login-button, .linkedin-logout-button, .action-button {
     background-color: var(--primary-color);
@@ -147,34 +184,6 @@ body {
     margin-top: 4px;
 }
 
-/* Styles for the removed indications section (can be deleted if not needed elsewhere) */
-.indications-summary {
-    background-color: var(--info-color);
-    color: white;
-    padding: 15px;
-    border-radius: var(--border-radius);
-    margin-bottom: 20px;
-}
-.indications-summary p {
-    margin: 5px 0;
-    font-size: 1.1em;
-}
-.indications-summary strong {
-    font-size: 1.5em;
-}
-.indications-list {
-    text-align: left;
-    list-style: none;
-    padding: 0;
-}
-.indications-list li {
-    background-color: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: var(--border-radius);
-    margin-bottom: 8px;
-    border: 1px solid #e9ecef;
-}
-
 .spinner {
     display: inline-block;
     width: 1em;
@@ -192,7 +201,6 @@ body {
 
 /* Hide sections until login */
 .profile-section,
-/* .indications-section,  -- This was removed from HTML, so selector can be removed too */
 .actions-section,
 #userInfo,
 #logoutButton {
@@ -200,7 +208,7 @@ body {
 }
 
 @media (max-width: 600px) {
-    .auth-section, .profile-section, .actions-section { /* Removed .indications-section */
+    .auth-section, .profile-section, .actions-section, .celebration-section {
         padding: 20px;
     }
     .user-info {
@@ -213,5 +221,8 @@ body {
     }
     .linkedin-login-button, .linkedin-logout-button, .action-button {
         width: 100%;
+    }
+    .celebration-text {
+        font-size: 1.3em;
     }
 }
